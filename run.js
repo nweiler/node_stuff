@@ -1,34 +1,32 @@
-var async = require('async'),
-    fs = require('fs'),
+var fs = require('fs'),
     http = require('http'),
     mongoose = require('mongoose'),
     MongoClient = require('mongodb').MongoClient,
     util = require('util');
   
-/*
-    mongoose.connect('mongodb://localhost/test');
-    // Create a new cat
-    var Cat = mongoose.model('Cat', { name: String }),
+    mongoose.connect('mongodb://localhost/run');
+    var db = mongoose.connection;
+    db.on('error', console.log('error');
+    db.once('open', function callback() {
+  }
+  
+    var run = mongoose.model('run', { name: String }),
         kitty1 = new Cat({ name: 'Felix' });
         kitty2 = new Cat({ name: 'Fritz' });
     kitty1.save(function(err) { if (err) console.log('Error: %s', err); })
     kitty2.save(function(err) { if (err) console.log('Error: %s', err); })
-*/
 
-MongoClient.connect('mongodb://localhost/cats', function(e, db) {
-  if (e) console.log('Error connecting to db: %s', e);;
+MongoClient.connect('mongodb://localhost/test', function(err, db) {
+  if (err) throw error;
 
   http.createServer(function(req, res) {
     var name = req.url.split('/').pop();
     db.collection('cats').find( { "name": name } ).toArray(function(err, results) {
-      async.each(results,
-      function(r, cb) {
+      results.forEach(function(r) {
         res.write(util.format('Name: %s, ID: %s\n', r.name, r._id));
-        cb();
-      },
-      function() {
-        res.end('Done');
       })
+      // This 'end' doesn't actually work as intended
+      res.end();
     })
   })
   .on('request', function(req, res) {
